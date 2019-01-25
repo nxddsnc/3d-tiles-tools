@@ -22,6 +22,7 @@ var isGzipped = require('../lib/isGzipped');
 var optimizeGlb = require('../lib/optimizeGlb');
 var runPipeline = require('../lib/runPipeline');
 var tilesetToDatabase = require('../lib/tilesetToDatabase');
+var recursive = require("recursive-readdir");
 
 var zlibGunzip = Promise.promisify(zlib.gunzip);
 var zlibGzip = Promise.promisify(zlib.gzip);
@@ -79,6 +80,7 @@ var argv = yargs
             type: 'boolean'
         }
     })
+    .command('glbsToB3dms', 'glbs to b3dms')
     .command('pipeline', 'Execute the input pipeline JSON file.')
     .command('tilesetToDatabase', 'Create a sqlite database for a tileset.')
     .command('databaseToTileset', 'Unpack a tileset database to a tileset folder.')
@@ -141,7 +143,10 @@ runCommand(command, input, output, force, argv)
     });
 
 function runCommand(command, input, output, force, argv) {
-    if (command === 'pipeline') {
+    if (command === 'glbsToB3dms') {
+        return traversConvertGlbToB3dm(input);
+    }
+    else if (command === 'pipeline') {
         return processPipeline(input, force);
     } else if (command === 'gzip') {
         return processStage(input, output, force, command, argv);
@@ -291,6 +296,25 @@ function convertDatabaseToTileset(inputPath, outputDirectory, force) {
         });
 }
 
+function traversConvertGlbToB3dm(inputPath) {
+    return new Promise(function() {
+        recursive(inputPath, function (err, files) {
+            files = files.filter(function(file) {
+                return file.indexOf(".glb") != -1;
+            })
+            console.log(files);
+            files.forEach(function(filePath) {
+                var outputFilePath = filePath.replace(".glb", ".b3dm");
+                readGlbWriteB3dm(filePath, outputFilePath).then(function(msg){
+                    console.log(msg);
+                })
+            })
+          });
+    });
+
+
+}
+
 function readGlbWriteB3dm(inputPath, outputPath, force) {
     outputPath = defaultValue(outputPath, inputPath.slice(0, inputPath.length - 3) + 'b3dm');
     return checkFileOverwritable(outputPath, force)
@@ -299,7 +323,7 @@ function readGlbWriteB3dm(inputPath, outputPath, force) {
                 .then(function(glb) {
                     // Set b3dm spec requirements
                     var featureTableJson = {
-                        BATCH_LENGTH : 0
+                        BATCH_LENGTH : 664
                     };
                     return fsExtra.outputFile(outputPath, glbToB3dm(glb, featureTableJson));
                 });
@@ -316,7 +340,7 @@ function readGlbWriteI3dm(inputPath, outputPath, force) {
                     var featureTable = {
                         INSTANCES_LENGTH : 1,
                         POSITION : {
-                            byteOffset : 0
+                            byteOffset : 664
                         }
                     };
                     var featureTableJsonBuffer = getJsonBufferPadded(featureTable);

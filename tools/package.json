@@ -27,7 +27,8 @@
     "fs-extra": "^4.0.2",
     "gltf-pipeline": "^1.0.2",
     "klaw": "^2.1.0",
-    "sqlite3": "^3.1.13",
+    "recursive-readdir": "^2.2.2",
+    "sqlite3": "file:mapbox-node-sqlite3-v4.0.6-2-ga9dc5a3.tar.gz",
     "uuid": "^3.1.0",
     "yargs": "^10.0.3"
   },
