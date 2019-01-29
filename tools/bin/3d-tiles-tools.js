@@ -319,8 +319,6 @@ function traversConvertGlbToB3dm(inputPath) {
               });
         });
     });
-
-
 }
 
 function readGlbWriteB3dm(inputPath, outputPath, force, batchLength) {
