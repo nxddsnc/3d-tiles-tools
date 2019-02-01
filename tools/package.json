@@ -25,6 +25,7 @@
     "bluebird": "^3.5.1",
     "cesium": "^1.39",
     "fs-extra": "^4.0.2",
+    "gltf-bounding-box": "^0.2.2",
     "gltf-pipeline": "^1.0.2",
     "klaw": "^2.1.0",
     "recursive-readdir": "^2.2.2",

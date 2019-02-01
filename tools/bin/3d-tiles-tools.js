@@ -299,9 +299,8 @@ function convertDatabaseToTileset(inputPath, outputDirectory, force) {
 
 function traversConvertGlbToB3dm(inputPath) {
     return new Promise(function() {
-        fs.readFile(inputPath + '/batchLengthes.json', 'utf8', function (err, data) {
-            var batchLengthes = JSON.parse(data);
-            console.log(batchLengthes);
+        fs.readFile(inputPath + '/batchLength.json', 'utf8', function (err, data) {
+            var batchLength = JSON.parse(data)["batchLength"];
             recursive(inputPath, function (err, files) {
                 files = files.filter(function(file) {
                     return file.indexOf('.glb') !== -1;
@@ -311,8 +310,7 @@ function traversConvertGlbToB3dm(inputPath) {
                     var key = filePath.substring(filePath.lastIndexOf('\\') + 1, filePath.length);
                     console.log("key: " + key);
                     var outputFilePath = filePath.replace('.glb', '.b3dm');
-                    console.log(batchLengthes[key]);
-                    readGlbWriteB3dm(filePath, outputFilePath, true, batchLengthes[key]).then(function(msg){
+                    readGlbWriteB3dm(filePath, outputFilePath, true, batchLength).then(function(msg){
                         console.log(msg);
                     });
                 });
@@ -329,7 +327,7 @@ function readGlbWriteB3dm(inputPath, outputPath, force, batchLength) {
                 .then(function(glb) {
                     // Set b3dm spec requirements
                     var featureTableJson = {
-                        BATCH_LENGTH : batchLength
+                        BATCH_LENGTH : batchLength? batchLength:0
                     };
                     return fsExtra.outputFile(outputPath, glbToB3dm(glb, featureTableJson));
                 });
